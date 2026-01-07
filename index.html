@@ -6,59 +6,52 @@
     <title>Балда</title>
     
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { --blue: #0077FF; --green: #4BB34B; --bg: #EBEDF0; }
-        * { box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; }
-        body { margin: 0; background: var(--bg); font-family: -apple-system, system-ui, sans-serif; height: 100vh; overflow: hidden; }
+        :root { --blue: #0077FF; --bg: #EBEDF0; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: var(--bg); font-family: -apple-system, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         #app { width: 100%; max-width: 500px; background: #fff; height: 100vh; display: flex; flex-direction: column; margin: 0 auto; }
         
-        .header { display: flex; justify-content: space-around; padding: 8px; border-bottom: 1px solid #ddd; background: #fff; }
-        .p-card { text-align: center; flex: 1; margin: 2px; padding: 6px; border: 2px solid #eee; border-radius: 10px; }
-        .p-card.active { border-color: var(--blue); background: #f0f7ff; }
-        .score { font-size: 22px; font-weight: bold; display: block; }
-        .p-name { font-size: 10px; color: #818c99; font-weight: bold; overflow: hidden; white-space: nowrap; }
-        .avatar { width: 30px; height: 30px; border-radius: 50%; background: #ccc; margin: 0 auto 4px; display: block; }
+        /* Компактный интерфейс по твоему наброску */
+        .header { display: flex; justify-content: space-around; padding: 5px; background: #fff; border-bottom: 1px solid #e7e8ec; }
+        .p-card { flex: 1; margin: 4px; padding: 8px; border: 2px solid #f0f2f5; border-radius: 12px; text-align: center; }
+        .p-card.active { border-color: var(--blue); background: #f5faff; }
+        .score { font-size: 24px; font-weight: bold; display: block; color: #000; }
+        .p-name { font-size: 11px; color: #818c99; font-weight: 600; text-transform: uppercase; }
 
-        #grid-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; }
-        #grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; max-width: 300px; }
-        .cell { aspect-ratio: 1; border: 1px solid #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; background: #fff; }
-        .cell.active-cell { border: 3px solid var(--blue); background: #e1f0ff; }
-        .cell.selected { background: var(--blue) !important; color: #fff !important; }
+        #grid-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; background: #fff; }
+        #grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; max-width: 320px; }
+        .cell { aspect-ratio: 1; border: 1px solid #dce1e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background: #fff; box-shadow: inset 0 -2px 0 #f0f2f5; }
+        .cell.active-cell { border: 2px solid var(--blue); background: #e1f0ff; }
+        .cell.selected { background: var(--blue) !important; color: #fff !important; border-color: var(--blue); }
 
-        .kb { display: grid; grid-template-columns: repeat(11, 1fr); gap: 2px; padding: 4px; background: #f2f3f5; border-top: 1px solid #ddd; }
-        .key { padding: 12px 0; background: #fff; border-radius: 4px; text-align: center; font-size: 13px; font-weight: bold; box-shadow: 0 1px 0 #bbb; }
+        .kb { display: grid; grid-template-columns: repeat(11, 1fr); gap: 3px; padding: 6px; background: #f2f3f5; }
+        .key { padding: 12px 0; background: #fff; border-radius: 5px; text-align: center; font-size: 13px; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); cursor: pointer; }
         
-        .controls { padding: 8px; text-align: center; }
-        #word-display { font-size: 18px; font-weight: bold; color: var(--blue); margin-bottom: 6px; min-height: 20px; }
+        .footer { padding: 10px; background: #fff; border-top: 1px solid #e7e8ec; text-align: center; }
+        #word-info { font-size: 16px; font-weight: bold; color: var(--blue); margin-bottom: 8px; height: 20px; }
         .btns { display: flex; gap: 8px; }
-        button { flex: 1; height: 40px; border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 14px; }
+        button { flex: 1; height: 44px; border: none; border-radius: 10px; color: #fff; font-weight: bold; font-size: 15px; }
     </style>
 </head>
 <body>
 
 <div id="app">
     <div class="header">
-        <div id="p1-card" class="p-card active">
-            <img id="p1-img" class="avatar" src="">
-            <span id="p1-name" class="p-name">Игрок 1</span>
-            <span id="p1-score" class="score">0</span>
-        </div>
-        <div id="p2-card" class="p-card">
-            <img id="p2-img" class="avatar" src="">
-            <span id="p2-name" class="p-name">Игрок 2</span>
-            <span id="p2-score" class="score">0</span>
-        </div>
+        <div id="p1-card" class="p-card active"><span class="p-name" id="p1-n">Игрок 1</span><span id="p1-s" class="score">0</span></div>
+        <div id="p2-card" class="p-card"><span class="p-name" id="p2-n">Игрок 2</span><span id="p2-s" class="score">0</span></div>
     </div>
 
     <div id="grid-container"><div id="grid"></div></div>
 
-    <div class="controls">
-        <div id="word-display">---</div>
+    <div class="footer">
+        <div id="word-info">---</div>
         <div class="btns">
-            <button id="btn-submit" style="background:var(--green)" onclick="submitWord()">ОТПРАВИТЬ</button>
+            <button id="btn-ok" style="background:#4bb34b" onclick="submitWord()">ОТПРАВИТЬ</button>
             <button style="background:#818c99" onclick="resetTurn()">СБРОС</button>
         </div>
     </div>
@@ -67,111 +60,109 @@
 </div>
 
 <script>
-    // Инициализация
+    // 1. Данные
     const alphabet = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-    let currentUser = { id: 'local_' + Math.random(), name: 'Вы', photo: '' };
-    let state = { board: [], scores: [0, 0], turn: 0, playerInfo: [] };
-    let localPlaced = null, localSelected = [];
+    let game = { board: Array(5).fill().map(() => Array(5).fill('')), scores: [0, 0], turn: 0, players: [] };
+    "БАЛДА".split('').forEach((c, i) => game.board[2][i] = c);
 
-    // Настройка Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyDgj0aC-4zbgzMV2_F0AcJRNsST8iuK0mY",
-        authDomain: "balda-63646.firebaseapp.com",
-        projectId: "balda-63646",
-        databaseURL: "https://balda-63646-default-rtdb.firebaseio.com/",
-        appId: "1:823002027540:web:b1204ce5eeafa9cd8d7901"
-    };
+    let localId = 'u' + Math.floor(Math.random() * 100000);
+    let myInfo = { id: localId, name: "Вы" };
+    let sel = [], placed = null;
 
-    // Запуск игры
-    async function init() {
+    // 2. Старт ВК
+    vkBridge.send("VKWebAppInit").then(() => {
+        vkBridge.send("VKWebAppGetUserInfo").then(data => {
+            myInfo = { id: data.id, name: data.first_name };
+            initFirebase();
+        }).catch(() => initFirebase());
+    }).catch(() => initFirebase());
+
+    // 3. Старт Firebase
+    function initFirebase() {
         try {
-            await vkBridge.send("VKWebAppInit");
-            const vkData = await vkBridge.send("VKWebAppGetUserInfo");
-            currentUser = { id: vkData.id, name: vkData.first_name, photo: vkData.photo_100 };
-        } catch(e) { console.log("Работаем без ВК"); }
+            const config = {
+                apiKey: "AIzaSyDgj0aC-4zbgzMV2_F0AcJRNsST8iuK0mY",
+                authDomain: "balda-63646.firebaseapp.com",
+                databaseURL: "https://balda-63646-default-rtdb.firebaseio.com/",
+                projectId: "balda-63646"
+            };
+            firebase.initializeApp(config);
+            const ref = firebase.database().ref('game_v1');
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('game_session');
-
-        db.on('value', (snap) => {
-            let data = snap.val();
-            if (!data) {
-                const b = Array(5).fill().map(() => Array(5).fill(''));
-                "БАЛДА".split('').forEach((c, i) => b[2][i] = c);
-                data = { board: b, scores: [0, 0], turn: 0, playerInfo: [currentUser], usedWords: ["БАЛДА"] };
-                db.set(data);
-            } else {
-                state = data;
-                if (state.playerInfo.length < 2 && !state.playerInfo.find(p => p.id === currentUser.id)) {
-                    state.playerInfo.push(currentUser);
-                    db.update({ playerInfo: state.playerInfo });
+            ref.on('value', (s) => {
+                const d = s.val();
+                if (d) {
+                    game = d;
+                    if (game.players.length < 2 && !game.players.find(p => p.id === myInfo.id)) {
+                        game.players.push(myInfo);
+                        ref.update({ players: game.players });
+                    }
+                } else {
+                    ref.set({ ...game, players: [myInfo] });
                 }
                 render();
-            }
-        });
+            });
+        } catch(e) { render(); } // Если Firebase упал, играем локально
     }
 
     function render() {
-        const grid = document.getElementById('grid');
-        grid.innerHTML = '';
-        const myIndex = state.playerInfo.findIndex(p => p.id === currentUser.id);
+        const g = document.getElementById('grid');
+        g.innerHTML = '';
+        const myIdx = game.players.findIndex(p => p.id === myInfo.id);
 
         for (let r = 0; r < 5; r++) {
             for (let c = 0; c < 5; c++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
-                let char = (localPlaced?.r === r && localPlaced?.c === c) ? localPlaced.char : state.board[r][c];
+                let char = (placed?.r === r && placed?.c === c) ? placed.char : game.board[r][c];
                 cell.textContent = char;
-                if (localPlaced?.r === r && localPlaced?.c === c) cell.classList.add('active-cell');
-                if (localSelected.some(s => s.r === r && s.c === c)) cell.classList.add('selected');
+                if (placed?.r === r && placed?.c === c) cell.classList.add('active-cell');
+                if (sel.find(s => s.r === r && s.c === c)) cell.classList.add('selected');
+                
                 cell.onclick = () => {
-                    if (state.turn === myIndex || myIndex === -1) {
-                        if (!localPlaced && state.board[r][c] === '') localPlaced = { r, c, char: '' };
-                        else if (localPlaced?.char) {
-                            const char = (localPlaced.r === r && localPlaced.c === c) ? localPlaced.char : state.board[r][c];
-                            if (char && !localSelected.find(s => s.r === r && s.c === c)) localSelected.push({ r, c, char });
-                        }
-                        render();
+                    if (game.turn !== myIdx && myIdx !== -1) return;
+                    if (!placed && game.board[r][c] === '') placed = { r, c, char: '' };
+                    else if (placed?.char) {
+                        const curChar = (placed.r === r && placed.c === c) ? placed.char : game.board[r][c];
+                        if (curChar && !sel.find(s => s.r === r && s.c === c)) sel.push({ r, c, char: curChar });
                     }
+                    render();
                 };
-                grid.appendChild(cell);
+                g.appendChild(cell);
             }
         }
-        updateUI(myIndex);
-        document.getElementById('word-display').textContent = localSelected.map(s => s.char).join('') || '---';
+        
+        // UI
+        document.getElementById('word-info').textContent = sel.map(s => s.char).join('') || (placed ? "Выберите буквы" : "Поставьте букву");
+        document.getElementById('p1-s').textContent = game.scores[0];
+        document.getElementById('p2-s').textContent = game.scores[1];
+        document.getElementById('p1-n').textContent = game.players[0]?.name || "Ожидание...";
+        document.getElementById('p2-n').textContent = game.players[1]?.name || "Игрок 2";
+        document.getElementById('p1-card').classList.toggle('active', game.turn === 0);
+        document.getElementById('p2-card').classList.toggle('active', game.turn === 1);
     }
 
     function submitWord() {
-        if (localSelected.length < 2) return;
-        state.board[localPlaced.r][localPlaced.c] = localPlaced.char;
-        state.scores[state.turn] += localSelected.length;
-        state.turn = state.turn === 0 ? 1 : 0;
-        firebase.database().ref('game_session').set(state).then(() => {
-            localPlaced = null; localSelected = [];
+        if (sel.length < 2 || !sel.find(s => s.r === placed.r && s.c === placed.c)) return;
+        game.board[placed.r][placed.c] = placed.char;
+        game.scores[game.turn] += sel.length;
+        game.turn = game.turn === 0 ? 1 : 0;
+        firebase.database().ref('game_v1').set(game).then(() => {
+            placed = null; sel = [];
         });
     }
 
-    function updateUI(myIndex) {
-        state.playerInfo.forEach((p, i) => {
-            document.getElementById(`p${i+1}-name`).textContent = p.name;
-            document.getElementById(`p${i+1}-img`).src = p.photo;
-            document.getElementById(`p${i+1}-score`).textContent = state.scores[i];
-        });
-        document.getElementById('p1-card').classList.toggle('active', state.turn === 0);
-        document.getElementById('p2-card').classList.toggle('active', state.turn === 1);
-        document.getElementById('btn-submit').disabled = (myIndex !== -1 && state.turn !== myIndex);
-    }
+    function resetTurn() { placed = null; sel = []; render(); }
 
-    // Алфавит
     const kb = document.getElementById('keyboard');
     alphabet.split('').forEach(char => {
         const k = document.createElement('div');
         k.className = 'key'; k.textContent = char;
-        k.onclick = () => { if (localPlaced && !localSelected.length) { localPlaced.char = char; render(); } };
+        k.onclick = () => { if (placed && !sel.length) { placed.char = char; render(); } };
         kb.appendChild(k);
     });
 
-    init();
+    render();
 </script>
 </body>
 </html>
