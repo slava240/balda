@@ -1,146 +1,81 @@
-/* Общие настройки темы */
 :root {
     --vk-blue: #0077FF;
     --vk-green: #4BB34B;
-    --vk-red: #E64646;
-    --vk-bg: #EBEDF0;
-    --cell-size: calc(100vw / 6); /* Адаптивный размер клеток */
-    --max-cell-size: 70px;
-}
-
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     margin: 0;
-    padding: 0;
-    font-family: -apple-system, system-ui, "Helvetica Neue", Roboto, sans-serif;
-    background-color: var(--vk-bg);
-    color: #000;
+    background-color: #ebedf0;
+    font-family: sans-serif;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
 }
 
 #app {
-    width: 100%;
+    width: 100vw;
     max-width: 500px;
     background: white;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 16px rgba(0,0,0,0.05);
 }
 
-/* Шапка с информацией */
 header {
-    padding: 16px;
+    padding: 15px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #D7D8D9;
-    background: white;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    border-bottom: 1px solid #d7d8d9;
 }
 
-#user-info {
-    font-weight: 600;
-    font-size: 15px;
-}
-
-#score {
-    background: var(--vk-blue);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-/* Игровое поле */
 #grid-container {
-    padding: 20px;
+    padding: 10px;
     display: flex;
     justify-content: center;
-    background: #F9F9F9;
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(5, 1fr); /* 5 колонок */
+    gap: 5px;
     width: 100%;
-    max-width: calc(var(--max-cell-size) * 5 + 30px);
 }
 
 .cell {
-    width: 100%;
-    aspect-ratio: 1;
-    max-width: var(--max-cell-size);
-    background: white;
-    border: 1px solid #D7D8D9;
+    aspect-ratio: 1 / 1;
+    border: 1px solid #dfe1e5;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-weight: bold;
     cursor: pointer;
-    transition: all 0.1s ease;
-    user-select: none;
-    box-shadow: 0 2px 0 #D7D8D9;
+    background: #fff;
 }
 
-.cell:active {
-    transform: translateY(2px);
-    box-shadow: none;
-}
+.cell.selected { background: var(--vk-blue); color: white; }
+.cell.placed { background: #fff3cd; border-color: #ffeeba; }
 
-/* Состояние: Новая буква (еще не зафиксирована) */
-.cell.placed {
-    background: #FFF9C4;
-    border-color: #FBC02D;
-    color: #F57F17;
-    animation: pulse 1.5s infinite;
-}
+#controls { padding: 20px; text-align: center; }
 
-/* Состояние: Выделено в слово */
-.cell.selected {
-    background: var(--vk-blue) !important;
-    color: white !important;
-    border-color: #0062D4;
-    box-shadow: 0 2px 0 #00499E;
-    transform: scale(1.05);
-    z-index: 2;
-}
-
-/* Блок управления */
-#controls {
-    padding: 20px;
-    text-align: center;
-    flex-grow: 1;
+.buttons-group {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    gap: 10px;
 }
 
-#current-word {
-    font-size: 18px;
-    margin-bottom: 20px;
-    color: #818C99;
+button {
+    flex: 1;
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    color: white;
 }
 
-#current-word span {
-    color: #000;
-    font-weight: 800;
-    font-size: 24px;
-    letter-spacing: 2px;
+#submit-btn { background: var(--vk-green); }
+#clear-btn { background: #818c99; }
+
+.status-msg { margin-top: 15px; color: #818c99; font-size: 14px; }
     display: block;
     margin-top: 4px;
     min-height: 28px;
